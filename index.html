@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container { margin-top: 20px; }
+        .table th, .table td { text-align: left; }
+        .info-table td:first-child { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Mining Dashboard</h1>
+        <button id="refresh-btn" class="btn btn-primary mb-4">Get Latest Info</button>
+        <div id="info" class="mt-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>General Info</h3>
+                    <table id="info-table" class="table table-bordered info-table">
+                        <tbody>
+                            <tr>
+                                <td>Coin</td>
+                                <td id="coin">-</td>
+                            </tr>
+                            <tr>
+                                <td>Address</td>
+                                <td id="address">-</td>
+                            </tr>
+                            <tr>
+                                <td>Unsold</td>
+                                <td id="unsold">-</td>
+                            </tr>
+                            <tr>
+                                <td>Balance</td>
+                                <td id="balance">-</td>
+                            </tr>
+                            <tr>
+                                <td>Unpaid</td>
+                                <td id="unpaid">-</td>
+                            </tr>
+                            <tr>
+                                <td>Paid (24h)</td>
+                                <td id="paid24h">-</td>
+                            </tr>
+                            <tr>
+                                <td>Total</td>
+                                <td id="total">-</td>
+                            </tr>
+                            <tr>
+                                <td>Hashrate</td>
+                                <td id="hashrate">-</td>
+                            </tr>
+                            <tr>
+                                <td>Shares</td>
+                                <td id="shares">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h3>Miners</h3>
+                    <table id="miners-table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Difficulty</th>
+                                <th>Hashrate</th>
+                                <th>Number of Workers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Miners will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function formatHashrate(hashrate) {
+            return `${(hashrate / 1000).toFixed(2)} KH/s`;
+        }
+
+        function groupMiners(miners) {
+            const grouped = {};
+
+            miners.forEach(miner => {
+                const name = miner.ID;
+                if (!grouped[name]) {
+                    grouped[name] = { totalHashrate: 0, totalDifficulty: 0, count: 0 };
+                }
+                grouped[name].totalHashrate += miner.hashrate;
+                grouped[name].totalDifficulty += miner.difficulty;
+                grouped[name].count += 1;
+            });
+
+            return grouped;
+        }
+
+        function fetchData() {
+            $.ajax({
+                url: 'https://pool.rplant.xyz/api/walletEx/avian-minotaurx/RC3iyf9Zz8tqbkRD7aWyLFfKv17Lp2Z5BH/123123',
+                method: 'GET',
+                success: function(data) {
+                    // Update general info
+                    $('#coin').text(data.coin);
+                    $('#address').text(data.address);
+                    $('#unsold').text(data.unsold);
+                    $('#balance').text(data.balance);
+                    $('#unpaid').text(data.unpaid);
+                    $('#paid24h').text(data.paid24h);
+                    $('#total').text(data.total);
+                    $('#hashrate').text(formatHashrate(data.hashrate));
+                    $('#shares').text(data.shares);
+
+                    // Group and format miners
+                    const groupedMiners = groupMiners(data.miners);
+                    $('#miners-table tbody').empty();
+                    for (const [name, stats] of Object.entries(groupedMiners)) {
+                        const avgDifficulty = (stats.totalDifficulty / stats.count).toFixed(8);
+                        const totalHashrate = formatHashrate(stats.totalHashrate);
+
+                        $('#miners-table tbody').append(`
+                            <tr>
+                                <td>${name}</td>
+                                <td>${name}</td>
+                                <td>${avgDifficulty}</td>
+                                <td>${totalHashrate}</td>
+                                <td>${stats.count}</td>
+                            </tr>
+                        `);
+                    }
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            // Initial fetch
+            fetchData();
+            
+            // Fetch data every 5 seconds
+            setInterval(fetchData, 30000);
+            
+            // Refresh button click event
+            $('#refresh-btn').click(function() {
+                fetchData();
+            });
+        });
+    </script>
+</body>
+</html>
