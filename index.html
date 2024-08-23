@@ -77,6 +77,19 @@
                             <!-- Miners will be populated here -->
                         </tbody>
                     </table>
+                    <h3>Transactions</h3>
+                    <table id="transactions-table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Amount</th>
+                                <th>Transaction ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Transactions will be populated here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -89,6 +102,11 @@
     <script>
         function formatHashrate(hashrate) {
             return `${(hashrate / 1000).toFixed(2)} KH/s`;
+        }
+
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp * 1000);
+            return date.toLocaleString();
         }
 
         function groupMiners(miners) {
@@ -120,7 +138,7 @@
                     $('#unpaid').text(data.unpaid);
                     $('#paid24h').text(data.paid24h);
                     $('#total').text(data.total);
-                    $('#hashrate').text(formatHashrate(data.hashrate));
+                    $('#hashrate').text(data.hashrate);
                     $('#shares').text(data.shares);
 
                     // Group and format miners
@@ -140,6 +158,18 @@
                             </tr>
                         `);
                     }
+
+                    // Update transactions
+                    $('#transactions-table tbody').empty();
+                    data.payments.forEach(payment => {
+                        $('#transactions-table tbody').append(`
+                            <tr>
+                                <td>${formatTimestamp(payment.time)}</td>
+                                <td>${payment.amount}</td>
+                                <td>${payment.tx}</td>
+                            </tr>
+                        `);
+                    });
                 }
             });
         }
@@ -148,7 +178,7 @@
             // Initial fetch
             fetchData();
             
-            // Fetch data every 5 seconds
+            // Fetch data every 30 seconds
             setInterval(fetchData, 30000);
             
             // Refresh button click event
