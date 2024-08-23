@@ -137,7 +137,7 @@
                     $('#unpaid').text(data.unpaid);
                     $('#paid24h').text(data.paid24h);
                     $('#total').text(data.total);
-                    $('#hashrate').text(data.hashrate);
+                    $('#hashrate').text(formatHashrate(data.hashrate));
                     $('#shares').text(data.shares);
 
                     // Group and format miners
