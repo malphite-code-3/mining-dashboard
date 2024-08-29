@@ -99,8 +99,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        function formatHashrate(hashrate) {
-            return `${(hashrate / 1000).toFixed(2)} KH/s`;
+        function formatHashrate(hash) {
+            const hashrate = Number(hash);
+            if (hashrate < 1000) return `${hashrate.toFixed(1)} H/s`;
+            if (hashrate >= 1000 && hashrate < 1000000) return `${(hashrate / 1000).toFixed(1)} KH/s`;
+            return `${(hashrate / 1000000).toFixed(1)} MM/s`
         }
 
         function formatTimestamp(timestamp) {
