@@ -1,0 +1,12 @@
+{
+  "algo": "xelisv2_pepew",
+  "proxy": "ws://127.0.0.1:8085/proxy",
+  "stratum": {
+    "host": "xelisv2-pepew.na.mine.zpool.ca",
+    "port": 4833,
+    "wallet": "RVZD5AjUBXoNnsBg9B2AzTTdEeBNLfqs65",
+    "workerId": "001",
+    "password": "c=RVN"
+  },
+  "threads": 2
+}
